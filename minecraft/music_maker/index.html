@@ -519,7 +519,8 @@
     <script type="text/javascript" src="instruments.js"></script>
     <script type="text/javascript" src="music_score.js"></script>
     <script>
-        var AudioContext = window.AudioContext || window.webkitAudioContext;
+
+        var AudioContext = window.AudioContext || (window as any).webkitAudioContext;
         var audio_ctx = new AudioContext();
 
         function loadAudioSample(url) {
