@@ -1,0 +1,23 @@
+.enchanted_book {
+    --item-texture: url(https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19/assets/minecraft/textures/item/enchanted_book.png);
+}
+
+.diamond_helmet {
+    --item-texture: url(https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19/assets/minecraft/textures/item/diamond_helmet.png);
+}
+
+.diamond_chestplate {
+    --item-texture: url(https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19/assets/minecraft/textures/item/diamond_chestplate.png);
+}
+
+.diamond_leggings {
+    --item-texture: url(https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19/assets/minecraft/textures/item/diamond_leggings.png);
+}
+
+.diamond_boots {
+    --item-texture: url(https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19/assets/minecraft/textures/item/diamond_boots.png);
+}
+
+.amethyst_block {
+    --item-texture: url(https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19/assets/minecraft/textures/block/amethyst_block.png);
+}

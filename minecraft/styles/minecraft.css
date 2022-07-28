@@ -1,0 +1,142 @@
+@font-face { font-family: f77minecraft; src: url('../fonts/F77MinecraftRegular-0VYv.ttf'); } 
+
+body {
+    background-color: white;
+    margin: 20px;
+    display: absolute;
+}
+
+.item {
+    --item-texture: ;
+
+    width: 48px;
+    height: 48px;
+
+    background-image: var(--item-texture);
+
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+
+   
+
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+
+    border: #00000000 solid 3px;
+}
+
+
+.item .glint {
+    --item-texture: inherit;
+
+    background-image: url('../textures/glint.gif');
+    background-size: contain;
+
+    mix-blend-mode: screen;
+    
+    display: block;
+
+    width: 48px;
+    height: 48px;
+
+    mask-image: var(--item-texture);
+    -webkit-mask-image: var(--item-texture);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center center;
+    mask-position: center center;
+
+    pointer-events: none;
+    user-select: none;
+}
+
+
+
+@keyframes enchantmentglint {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: -128px 0px;
+    }
+  }
+
+.itemcard {
+    pointer-events: none;
+}
+
+
+.pointerignore {
+    pointer-events: none;
+    user-select: none;
+}
+
+
+
+.black {
+    color: #000000;
+    text-shadow: 3px 3px #000000;
+}
+.dark_blue {
+    color: #0000AA;
+    text-shadow: 3px 3px #00002A;
+}
+.dark_green {
+    color: #00AA00;
+    text-shadow: 3px 3px #002A00;
+}
+.dark_aqua {
+    color: #00AAAA;
+    text-shadow: 3px 3px #002A2A;
+}
+.dark_red {
+    color: #AA0000;
+    text-shadow: 3px 3px #2A0000;
+}
+.dark_purple {
+    color: #AA00AA;
+    text-shadow: 3px 3px #2A002A;
+}
+.gold {
+    color: #FFAA00;
+    text-shadow: 3px 3px #2A2A00;
+}
+.gray {
+    color: #AAAAAA;
+    text-shadow: 3px 3px #2A2A2A;
+}
+.dark_gray {
+    color: #555555;
+    text-shadow: 3px 3px #151515;
+}
+.blue {
+    color: #5555FF;
+    text-shadow: 3px 3px #15153F;
+}
+.green {
+    color: #55FF55;
+    text-shadow: 3px 3px #153F15;
+}
+.aqua {
+    color: #55FFFF;
+    text-shadow: 3px 3px #153F3F;
+}
+.red {
+    color: #FF5555;
+    text-shadow: 3px 3px #3F1515;
+}
+.light_purple {
+    color: #FF55FF;
+    text-shadow: 3px 3px #3F153F;
+}
+.yellow {
+    color: #FFFF55;
+    text-shadow: 3px 3px #3F3F15;
+}
+.white {
+    color: #FFFFFF;
+    text-shadow: 3px 3px #3F3F3F;
+}

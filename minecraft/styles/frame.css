@@ -1,0 +1,118 @@
+:root {
+    --card-color: #100010EC;
+    --card-border: #25005FEC;
+    --card-border-select: #6100FFEC;
+}
+
+.tooltip {
+    
+
+    color: white;
+    padding: 6px;
+
+    /* font-family: f77minecraft;
+    font-size: 1.5rem; */
+
+    /* text-shadow: 3px 3px #3F3F3F; */
+
+    margin: 3px;
+    background: var(--card-color);
+  
+    border: 3px var(--card-border) solid;
+    box-shadow: 
+      0 3px var(--card-color), 
+      0 -3px var(--card-color), 
+      3px 0 var(--card-color), 
+      -3px 0 var(--card-color);
+    
+    box-sizing: border-box;
+
+    overflow: hidden;
+
+}
+.tooltip:focus {
+    outline: none;
+    --card-border: var(--card-border-select);
+    filter: brightness(110%);
+}
+
+.tooltip::-webkit-scrollbar {
+    width: 18px;
+    box-sizing: border-box;
+}
+.tooltip::-webkit-scrollbar-track:vertical {
+    background-color: var(--card-border);
+    border-left: var(--card-color) solid 7px;
+    border-right: var(--card-color) solid 7px;
+}
+.tooltip::-webkit-scrollbar-track:horizontal {
+    background-color: var(--card-border);
+    border-top: var(--card-color) solid 7px;
+    border-bottom: var(--card-color) solid 7px;
+}
+.tooltip::-webkit-scrollbar-thumb {
+    background-color: var(--card-border);
+    border: 3px solid var(--card-color);
+}
+.tooltip::-webkit-scrollbar-thumb:vertical {
+    background-size: 18px 18px;
+    background-image: 
+        linear-gradient(to right, var(--card-border) 3px, transparent 3px 9px, var(--card-border) 9px),
+        linear-gradient(to bottom, transparent 6px, var(--card-color) 6px 9px, transparent 9px);
+
+}
+.tooltip::-webkit-scrollbar-thumb:horizontal {
+    background-size: 18px 18px;
+    background-image: 
+        linear-gradient(to bottom, var(--card-border) 3px, transparent 3px 9px, var(--card-border) 9px),
+        linear-gradient(to right, transparent 6px, var(--card-color) 6px 9px, transparent 9px);
+
+}
+.tooltip::-webkit-scrollbar-thumb:hover {
+    border-color: var(--card-border-select);
+}
+.tooltip::-webkit-scrollbar-button:single-button {
+    height: 24px;
+    width: 25px;
+    
+    border: 3px solid var(--card-border);
+}
+.tooltip::-webkit-scrollbar-button:single-button:hover {
+    border-color: var(--card-border-select);
+}
+.tooltip::-webkit-scrollbar-corner {
+    border: 3px solid var(--card-color);
+    background-color: var(--card-border);
+}
+/* 
+.tooltip::-webkit-scrollbar-button:single-button:vertical:decrement {
+
+}
+
+.tooltip::-webkit-scrollbar-button:single-button:vertical:decrement:hover {
+    border-color: var(--card-border-select);
+}
+
+.tooltip::-webkit-scrollbar-button:single-button:vertical:increment {
+
+}
+
+.tooltip::-webkit-scrollbar-button:vertical:single-button:increment:hover {
+    border-color: var(--card-border-select);
+}
+
+.tooltip::-webkit-scrollbar-button:single-button:horizontal:decrement {
+
+}
+
+.tooltip::-webkit-scrollbar-button:single-button:horizontal:decrement:hover {
+    border-color: var(--card-border-select);
+}
+
+.tooltip::-webkit-scrollbar-button:single-button:horizontal:increment {
+
+}
+
+.tooltip::-webkit-scrollbar-button:horizontal:single-button:increment:hover {
+    border-color: var(--card-border-select);
+} */

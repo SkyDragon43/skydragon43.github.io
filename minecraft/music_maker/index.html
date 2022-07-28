@@ -1,0 +1,1279 @@
+<html>
+<head>
+    <link rel="stylesheet" href="../styles/minecraft.css">
+    <link rel="stylesheet" href="../styles/frame.css">
+    <link rel="stylesheet" href="../styles/gui.css">
+    <link rel="stylesheet" href="../styles/items.css">
+    <style>
+        :root {
+            --card-color: #581845EC;
+            --card-border: #C70039EC;
+            --card-border-select: #FF5733EC;
+        }
+        body {
+            background-color: #e2d8b5;
+        }
+        #toolbar {
+            display: flex;
+            gap: 6px;
+            height: 54px;
+
+            margin-top: 0px;
+        }
+        #program_buttons {
+            display: flex;
+            gap: 3px;
+            position: relative;
+
+            height: 27px;
+
+
+            margin: -3;
+        }
+        #control_buttons {
+            display: flex;
+            gap: 3px;
+            position: relative;
+
+            height: 100%;
+
+            margin-top: 3px;
+        }
+        #control_buttons button {
+            position: relative;
+            opacity: 1;
+            height: 30px;
+            width: 30px;
+            margin-top: 0;
+            padding: 6px;
+
+            --text-color: var(--card-color);
+        }
+        #control_buttons button:hover {
+            --text-color: var(--card-border-select);
+        }
+        
+        #control_buttons #stop::before {
+            content: "";
+            position: absolute;
+            background-color: var(--text-color);
+            width: 12px;
+            height: 12px;
+            top: 6px;
+            left: 6px;
+        }
+        #control_buttons #play.play::before {
+            content: "";
+            position: absolute;
+            width: 0px;
+            height: 0px;
+
+            top: 6px;
+            left: 8px;
+
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 10px solid var(--text-color);
+        }
+        #control_buttons #play.pause::before {
+            content: "";
+            position: absolute;
+            box-sizing: border-box;
+            border-left: 4px solid var(--text-color);
+            border-right: 4px solid var(--text-color);
+            width: 12px;
+            height: 12px;
+            top: 6px;
+            left: 6px;
+        }
+
+        #stage {
+            position: absolute;
+            display: flex;
+            padding: 0px;
+            
+            width: 100%;
+            height: 100%;
+        }
+        #seek_bar {
+            position: sticky;
+            height: 25px;
+            background-color: var(--card-color);
+
+            border-bottom: 3px solid var(--card-border);
+
+            box-sizing: border-box;
+
+            z-index: 11;
+            margin-left: 25px;
+            top: 0px;
+
+            outline: 1px solid black;
+        }
+
+        #seek_cursor::before {
+            content: "";
+            position: absolute;
+            height: 0px;
+            width: 0px;
+
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 27px solid var(--card-border-select);
+        }
+        #seek_cursor {
+            
+            position: absolute;
+            height: 25px;
+            width: 20px;
+            margin-left: -9px;
+        }
+        
+        #seek_cursor::after {
+            content: "";
+
+            background-color: var(--card-border-select);
+            display: block;
+            position: absolute;
+            top: -3px;
+            margin-left: 9px;
+            width: 2px;
+            height: 100vh;
+            pointer-events: none;
+        }
+        .notes_info {
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            height: 800px;
+            width: 25px;
+            background-color: var(--card-color);
+
+            z-index: 11;
+            left: 0px;
+            margin-top: -801px;
+
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+
+            outline: 1px solid black;
+        }
+        .note_name {
+            flex-grow: 1;
+            padding: 2px;
+            font-family:Verdana, Geneva, Tahoma, sans-serif;
+            font-size:small;
+            text-align: left;
+            
+            background-image: linear-gradient(to bottom, black 1px, transparent 1px);
+
+            border-right: 3px solid var(--card-border);
+        }
+        .grid_corner {
+            position: sticky;
+            height: 25px;
+            width: 25px;
+
+            z-index: 11;
+            left: 0px;
+            top: 0px;
+            margin-top: -826px;
+
+            box-sizing: border-box;
+
+            border: 3px solid var(--card-color);
+            background-color: var(--card-border);
+
+            outline: 1px solid black;
+        }
+        .base {
+            display: flex;
+            flex-direction: column;
+
+            height: 100%;
+        }
+
+        .grid {
+            position: relative;
+            --line-color: rgba(255,255,255,.1);
+            background-size: 512px 801px;
+            background-image: url(../textures/notes.png);
+            
+            border-spacing: 0px;
+            color: white;
+            height: 801px;
+            width: 200%;
+        
+            table-layout: fixed;
+
+            left: 25px;
+
+            z-index: 9;
+        }
+
+
+        button {
+            background-color: var(--card-border);
+
+            margin: 3px;
+            padding: 4px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+            box-sizing: border-box;
+
+            outline: 3px solid var(--card-border);
+            border: 3px solid var(--card-color);
+
+            transition: 0.15s;
+        }
+        button:hover {
+            filter: brightness(110%);
+
+            outline-color: var(--card-border-select);
+
+            color: var(--card-border-select);
+        }
+        button:active {
+            filter: brightness(90%);
+            transform: translate(0, 3px)
+        }
+
+        .pulse {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background-color: transparent;
+            position: absolute;
+            top:0;
+            left:0;
+
+            animation: pulse_animation 1s;
+        }
+
+        @keyframes pulse_animation {
+            from {background-color: white;}
+            to {background-color: transparent;}
+        } 
+
+        .note {
+            --note-color: yellow;
+            
+            position: absolute;
+            background-color: var(--note-color);
+            background-image: url(../textures/colored_note_block.png);
+            background-size: cover;
+            width: 32px;
+            height: 32px;
+
+            pointer-events: none;
+            z-index: 10;
+
+            transition: opacity 0.2s;
+            
+        }
+        .out_layer {
+            opacity: 0.25;
+        }
+        .selected.out_layer {
+            opacity: 0.5;
+        }
+        .selected::before {
+            content: "";
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background-color: rgba(255,255,255,1);
+            mix-blend-mode: overlay;
+        }
+        
+
+        #grid_container {
+            overflow: scroll;
+            flex-grow: 1;
+            padding: 0px;
+        }
+
+
+
+
+
+        .instrument_button {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #fff;
+            margin: 1px;
+
+            position: relative;
+
+            
+
+            box-sizing: border-box;
+            background-size: cover;
+            background-image: url("../textures/colored_note_block.png");
+
+            width: 32px;
+            height: 32px;
+
+            transition: 1s;
+
+            padding: 0px;
+            
+        }
+        .instrument_button::before {
+            content: "";
+            box-sizing: border-box;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px transparent solid;
+            transition: 0.1s;
+        }
+        .instrument_button:checked::before {
+            
+            border: 2px white solid;
+        }
+
+
+
+        .layers_container {
+            overflow-y: scroll;
+            flex-grow: 1;
+            padding: 12px;
+        }
+        .layers_menu {
+            display: flex;
+            flex-direction: column;
+
+            z-index: 40;
+
+            width: 150px;
+
+            padding: 0px;
+            padding-top: 5px;
+            
+            text-align: center;
+        }
+
+        .layer_buttons {
+            text-align: center;
+            height: 34px;
+        }
+        .layer_buttons button {
+            width: 25px;
+            height: 25px;
+        }
+        
+        .layer_button {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: var(--card-border);
+            margin: auto;
+            margin-bottom: 12px;
+            padding: 4px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+            box-sizing: border-box;
+
+            outline: 3px solid var(--card-border);
+            border: 3px solid var(--card-color);
+
+            width: 100%;
+            height: 40px;
+
+            transition: 0.1s;
+            animation-name: new_layer;
+            animation-duration: 0.2s;
+        }
+        @keyframes new_layer {
+            from {
+                opacity: 0;
+                transform: translateX(-12px);
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .layer_button::before {
+            content: attr(value);
+        }
+        .layer_button:checked {
+            border: 3px var(--card-border-select) solid;
+            transform: translate(3px, 0);
+        }
+        .layer_button:hover {
+            filter: brightness(110%);
+        }
+        .layer_button:active {
+            filter: brightness(90%);
+            transform: translate(-3px, 0);
+        }
+
+
+
+        #selection_box {
+            position: absolute;
+            display: none;
+
+            background-color: var(--card-border);
+            outline: 3px dotted var(--card-border-select);
+            width: 100px;
+            height: 100px;
+            opacity: 0.5;
+            
+            margin: 0;
+            margin-top: -1px;
+
+            pointer-events: none;
+
+            z-index: 1000;
+        }
+        #draging_notes {
+            position: absolute;
+            margin: 0;
+            padding: 0;
+            pointer-events: none;
+
+            z-index: 1000;
+        }
+        
+        
+        
+    </style>
+</head>
+
+<body onbeforeunload="return beforeUnload()">
+    <div class="base">
+        <div class="tooltip" id="top_toolbar">
+            <span id="program_buttons">
+                <button>File</button>
+                <button>Edit</button>
+                <button>View</button>
+                <button>Preferences</button>
+            </span>
+        </div>
+        <div class="tooltip" id="toolbar">
+            <span id="control_buttons">
+                <button id="play" class="play"></button>
+                <button id="stop"></button>
+            </span>
+            <span id="instruments"></span>
+        </div>
+        <div style="flex-grow: 1; position: relative;">
+            <div id="stage">
+                <div class="tooltip layers_menu">
+                    Layers
+                    <div class="tooltip layers_container" id="layers_menu"></div>
+                    <div class="layer_buttons">
+                        <button onclick="removeLayer(event)">-</button>
+                        <button onclick="addLayer(event)">+</button>
+                    </div>
+                </div>
+                <div id="grid_container" class="tooltip">
+                    <div id="seek_bar"><div id="seek_cursor"></div></div>
+                    <div id="grid" class="grid">
+                        <div id="draging_notes"></div>
+                        <div id="selection_box"></div>
+                    </div>
+                    <div class="notes_info">
+                        <div class="note_name">F♯</div>
+                        <div class="note_name">F</div>
+                        <div class="note_name">E</div>
+                        <div class="note_name">D♯</div>
+                        <div class="note_name">D</div>
+                        <div class="note_name">C♯</div>
+                        <div class="note_name">C</div>
+                        <div class="note_name">B</div>
+                        <div class="note_name">A♯</div>
+                        <div class="note_name">A</div>
+                        <div class="note_name">G♯</div>
+                        <div class="note_name">G</div>
+                        <div class="note_name">F♯</div>
+                        <div class="note_name">F</div>
+                        <div class="note_name">E</div>
+                        <div class="note_name">D♯</div>
+                        <div class="note_name">D</div>
+                        <div class="note_name">C♯</div>
+                        <div class="note_name">C</div>
+                        <div class="note_name">B</div>
+                        <div class="note_name">A♯</div>
+                        <div class="note_name">A</div>
+                        <div class="note_name">G♯</div>
+                        <div class="note_name">G</div>
+                        <div class="note_name">F♯</div>
+                    </div>
+                    <div class="grid_corner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    <script type="text/javascript" src="cookies.js"></script>
+    <script type="text/javascript" src="instruments.js"></script>
+    <script type="text/javascript" src="music_score.js"></script>
+    <script>
+        var audio_ctx = new AudioContext();
+
+        function loadAudioSample(url) {
+            return fetch(url)
+                .then(response => response.arrayBuffer())
+                .then(buffer => audio_ctx.decodeAudioData(buffer));
+        }
+        function playSound(sound, pitch, volume) {
+            var cs = sounds[sound];
+            if (cs) {
+                var source = audio_ctx.createBufferSource();
+                source.buffer = cs.source;
+                source.playbackRate.value = pitch;
+                source.connect(audio_ctx.destination);
+                source.start(0);
+            }
+        }
+
+        var sounds = {};
+
+        var toolbar = document.getElementById("toolbar");
+        var stage = document.getElementById("stage");
+        var grid_container = document.getElementById("grid_container");
+        var grid = document.getElementById("grid");
+        var seeker = document.getElementById("seek_cursor");
+        var seek_bar = document.getElementById("seek_bar");
+        var layers_menu = document.getElementById("layers_menu");
+
+        var draging_notes = document.getElementById("draging_notes");
+
+        var selection_box = document.getElementById("selection_box");
+
+        var play_button = document.getElementById("play");
+        var stop_button = document.getElementById("stop");
+
+        var selectedInstrument = 0;
+
+        var toolbar_instruments = document.getElementById("instruments");
+
+        function loadInstrumentAudio(instrument) {
+            var sound_path = "../sounds/"+instrument.sound;
+            var iname = instrument.name;
+            loadAudioSample(sound_path).then(source => {sounds[iname] = {source: source}}).catch(e => {});
+        }
+        for (var i = 0; i < instruments.length; i++) {
+            var instrm = instruments[i];
+            loadInstrumentAudio(instrm);
+            
+            var instrm_button = document.createElement("input");
+            instrm_button.type = "radio";
+            instrm_button.name = "instrument";
+            instrm_button.classList.add("instrument_button");
+            instrm_button.value = i;
+            instrm_button.addEventListener("focus", unfocus);
+            instrm_button.style.backgroundColor = "rgb("+instrm.color[0]+","+instrm.color[1]+","+instrm.color[2]+")";
+            if (i === 0) {
+                instrm_button.checked = true;
+            }
+            instrm_button.addEventListener("click", e => {
+                selectedInstrument = e.srcElement.value;
+                playSound(instruments[selectedInstrument].name, 1, 1);
+            })
+            toolbar_instruments.appendChild(instrm_button);
+        }
+        console.log(sounds);
+
+        
+        
+
+        var gridSize = 0;
+        var emptyMeasures = 0;
+        updateGrid();
+
+        var layerNum = 0;
+        var currentLayer = "default";
+        var currentScore = new Score();
+
+        function getLayerButtons() {
+            var toRemove = []
+            console.log(currentScore.layers);
+            for (const [name, layer] of Object.entries(currentScore.layers)) {
+                let has = false;
+                for (const child of layers_menu.children) {
+                    if (child.value === name) {
+                        has = true;
+                    } else {
+                        if (currentScore.layers[child.value] === undefined) {
+                            toRemove.push(child);
+                        }
+                    }
+                }
+                if (!has) {
+                    var button = document.createElement("input");
+                    button.type = "radio";
+                    button.name = "layer";
+                    button.classList.add("layer_button");
+                    button.value = name;
+                    button.onclick = selectLayer;
+                    layers_menu.appendChild(button);
+                }
+            }
+            for (let i = 0; i < toRemove.length; i++) {
+                toRemove[i].remove();
+            }
+        }
+
+        function loadLastMusic() {
+            var lastNotesjson = cookies.getCookie("last_music");
+            if (lastNotesjson) {
+                let newScore = Score.fromJSON(lastNotesjson);
+                if (newScore) {
+                    for (const [key, layer] of Object.entries(newScore.layers)) {
+                        for (let i = 0; i <= 24; i++) {
+                            let row = layer.notes[i];
+                            for (let j = 0; j < row.length;j ++) {
+                                let note = row[j];
+                                if (note) {
+                                    let htmlnote = createNote(note.instrument);
+                                    htmlnote.style.top = i*32+"px";
+                                    htmlnote.style.left = j*32+"px";
+                                    note.element = htmlnote;
+
+                                    grid.appendChild(htmlnote);
+                                }
+                            }
+                        }
+                    }
+                    //newScore.addEventListener("layerschanged", layersChanged);
+                    currentScore = newScore;
+                }
+                
+
+                // for (var i = 0; i <= 24; i++) {
+                //     var row = lastNotes[i];
+                //     var newRow = notes[i];
+                //     for (const key in row) {
+                //         var note = row[key];
+                //         if (note) {
+                //             var note = addNote(note.instrument, i, key);
+                //             // var htmlnote = createNote(note.instrument);
+                //             // grid.appendChild(htmlnote);
+                //             // htmlnote.style.top = i*32+"px";
+                //             // htmlnote.style.left = key*32+"px";
+
+                //             // newRow[key] = {instrument: note.instrument, element: htmlnote}
+                //         }
+                //     }
+                // }
+            }
+            cookies.eraseCookie("last_music");
+            console.log("loaded last music");
+        }
+        loadLastMusic();
+        if (Object.keys(currentScore.layers).length <= 0) {
+            currentScore.getOrCreateLayer("default");
+        }
+        getLayerButtons();
+        layers_menu.getElementsByClassName("layer_button")[0].checked = true;
+        currentLayer = layers_menu.getElementsByClassName("layer_button")[0].value;
+        onChangedLayer();
+
+        function addLayer(e) {
+            while (currentScore.layers["Layer"+layerNum]) {
+                layerNum++;
+            }
+            currentScore.getOrCreateLayer("Layer"+layerNum);
+            getLayerButtons();
+            e.srcElement.blur();
+        }
+        function removeLayer(e) {
+            var length = layers_menu.children.length;
+            var current = 0;
+            if (length > 1) {
+                for (const child of layers_menu.children) {
+                    if (child.checked) {
+                        currentScore.removeLayer(child.value);
+                        getLayerButtons();
+
+                        
+                        var newLayer;
+                        if (current === length - 1) {
+                            newLayer = layers_menu.children[current-1];
+                        } else {
+                            newLayer = layers_menu.children[current];
+                        }
+                        newLayer.checked = true;
+                        currentLayer = newLayer.value;
+                        onChangedLayer();
+                        break;
+                    }
+                    current++;
+                }
+            }
+            e.srcElement.blur();
+        }
+
+        function addAnimination(note) {
+            let pulse = document.createElement("div");
+            pulse.classList.add("pulse");
+            pulse.addEventListener('animationend', e => {
+                pulse.remove();
+            })
+            note.appendChild(pulse);
+        }
+        
+        
+        
+        var keysDown = {}
+
+        var selection = {
+            box: {
+                x:0,
+                y:0,
+                width:0,
+                height:0
+            },
+            positions: [],
+            notes: [],
+            getNotes() {
+                this.notes = [];
+                for (const pos of this.positions) {
+                    if (pos) {
+                        const note = currentScore.getNote(pos);
+                        this.notes.push({note: note, pos: pos});
+                    }
+                }
+            },
+            selectNotes() {
+                const x1 = Math.floor(this.box.x/32);
+                const y1 = Math.floor(this.box.y/32);
+
+                const x2 = Math.floor((this.box.x + this.box.width)/32);
+                const y2 = Math.floor((this.box.y + this.box.height)/32);
+
+                const x3 = Math.min(x1, x2);
+                const y3 = Math.min(y1, y2);
+
+                const x4 = Math.max(x1, x2);
+                const y4 = Math.max(y1, y2);
+
+                for (var x = x3; x <= x4; x++) {
+                    for (var y = y3; y <= y4; y++) {
+                        const pos = new ScorePosition(x, y, currentLayer);
+                        const note = currentScore.getNote(pos);
+                        if (note) {
+                            note.element.classList.add("selected")
+                            this.positions.push(pos);
+                        }
+                    }
+                }
+            },
+            deselectNotes() {
+                const x1 = Math.floor(this.box.x/32);
+                const y1 = Math.floor(this.box.y/32);
+
+                const x2 = Math.floor((this.box.x + this.box.width)/32);
+                const y2 = Math.floor((this.box.y + this.box.height)/32);
+
+                const x3 = Math.min(x1, x2);
+                const y3 = Math.min(y1, y2);
+
+                const x4 = Math.max(x1, x2);
+                const y4 = Math.max(y1, y2);
+
+                for (var x = x3; x <= x4; x++) {
+                    for (var y = y3; y <= y4; y++) {
+                        const pos = new ScorePosition(x, y, currentLayer);
+                        this.positions = this.positions.filter(p => !pos.equals(p))
+                        const note = currentScore.getNote(pos);
+                        if (note) {
+                            note.element.classList.remove("selected")
+                        }
+                    }
+                }
+            },
+            deselect() {
+                for (const pos of this.positions) {
+                    if (pos) {
+                        const note = currentScore.getNote(pos);
+                        if (note) {
+                            note.element.classList.remove("selected")
+                        }
+                    }
+                }
+                this.notes = [];
+                this.positions = [];
+            },
+            deleteNotes() {
+                for (const pos of this.positions) {
+                    if (pos) {
+                        const note = currentScore.removeNote(pos);
+                    }
+                }
+                this.notes = [];
+                this.positions = [];
+            },
+            selectAllNotesInLayer(layer) {
+                const layerObj = currentScore.getOrCreateLayer(layer);
+                for (var i = 0; i <= 24; i++) {
+                    const row = layerObj.notes[i]
+                    for (const key in row) {
+                        const note = row[key];
+                        if (note) {
+                            const pos = new ScorePosition(key, i, layer);
+                            this.positions.push(pos);
+                            note.element.classList.add("selected")
+                        }
+                    }
+                }
+            }
+        }
+        var selecting = false;
+        var deselecting = false;
+
+        const clickPos = {x: 0, y: 0}
+        const gridClickPos = {x: 0, y: 0}
+        var drawing = false;
+        var removing = false;
+        var moving = false;
+
+
+        document.addEventListener("mousedown", e => {
+            clickPos.x = e.x;
+            clickPos.y = e.y;
+        });
+        grid.addEventListener("contextmenu", e => e.preventDefault())
+        grid.addEventListener("mousedown", e => {
+            gridClickPos.x = e.offsetX;
+            gridClickPos.y = e.offsetY;
+            drawing = false;
+            selecting = false;
+            if (!moving) {
+                if (keysDown[16]) {
+                    selection.box.x = e.offsetX;
+                    selection.box.y = e.offsetY;
+                    selection.box.width = 0;
+                    selection.box.height = 0;
+                    selection_box.style.left = e.offsetX;
+                    selection_box.style.top = e.offsetY;
+                    selection_box.style.width = 0;
+                    selection_box.style.height = 0;
+                    selection_box.style.display = "block";
+                    selecting = true;
+                    if (e.button === 0) {
+                        deselecting = false;
+                    }
+                    else if (e.button === 2) {
+                        deselecting = true;
+                    }
+                } else {
+                    if (e.button === 0) {
+                        removing = false;
+                        drawing = true;
+                    }
+                    else if (e.button === 2) {
+                        removing = true;
+                        drawing = true;
+                    }
+                }
+
+                if (selection.positions.length > 0) {
+                    if (drawing) {
+                        const pos = new ScorePosition(Math.floor(e.offsetX/32),Math.floor(e.offsetY/32),currentLayer);
+                        var onSelectedNote = false;
+                        for (const selectPos of selection.positions) {
+                            if (pos.equals(selectPos)) {
+                                onSelectedNote = true;
+                                break;
+                            }
+                        }
+                        if (onSelectedNote) {
+                            if (removing) {
+                                selection.deleteNotes();
+                            } else {
+                                drawing = false;
+                                moving = true;
+                                selection.getNotes();
+                            }
+                        }
+                    }
+                    if (drawing) {
+                        drawing = false;
+                        selection.deselect();
+                    }
+                }
+                
+                editGrid(e, true);
+            }
+        });
+        grid.addEventListener("mousemove", e => {
+            editGrid(e, false);
+        });
+        
+        function editGrid(e, click) {
+            if (drawing) {
+                var x = e.offsetX;
+                x = Math.floor(x/32)
+                var y = e.offsetY;
+                y = Math.floor(y/32)
+                var row = currentScore.getOrCreateLayer(currentLayer).notes[y];
+                if (row) {
+                    var prev_note = row[x];
+                    if (prev_note) {
+                        if (removing) {
+                            //prev_note.element.remove()
+                            currentScore.removeNote(new ScorePosition(x, y, currentLayer))
+                            //delete row[x]
+                        } else if (click) {
+                            var pitch = 24 - y;
+                            addAnimination(prev_note.element);
+                            playSound(instruments[prev_note.instrument].name, Math.pow(2, (pitch - 12)/12), 1);
+
+                            drawing = false;
+
+                            selection.deselect();
+                            selection.positions.push(new ScorePosition(x, y, currentLayer));
+                            selection.getNotes();
+                            moving = true;
+                        }
+                    } else {
+                        if (!removing) {
+                            var note = addNote(selectedInstrument, y, x);
+
+                            addAnimination(note.element);
+                            //row[x] = note;
+                            var pitch = 24 - y;
+                            playSound(instruments[selectedInstrument].name, Math.pow(2, (pitch - 12)/12), 1);
+                        }
+                    }
+                }
+            }
+            if (moving) {
+                const layerObj = currentScore.layers[currentLayer];
+                const gridRect = grid.getBoundingClientRect();
+                draging_notes.style.top = (e.y - gridRect.y) - gridClickPos.y;
+                draging_notes.style.left = (e.x - gridRect.x) - gridClickPos.x;
+
+                if (click) {
+                    for (const note of selection.notes) {
+                        const htmlnote = note.note.element;
+                        draging_notes.appendChild(htmlnote);
+                    }
+                }
+            }
+            
+        }
+        grid_container.addEventListener("wheel", (evt) => {
+            evt.preventDefault();
+
+            if (keysDown[16]) {
+                grid_container.scrollTop += evt.deltaY;
+            } else {
+                grid_container.scrollLeft += evt.deltaY * 2;
+            }
+            
+            //stage.scroll()
+            //stage.scrollTo();
+            //;
+        });
+
+        var playing = false;
+        var timestamp = 0;
+        
+        
+
+        var seeking = false;
+        var seeking_pos = 0
+        seeker.addEventListener("mousedown", e => {
+            seeking = true;
+            seeking_pos = e.offsetX
+        });
+        seek_bar.addEventListener("mousedown", e => {
+            if (!seeking) {
+                var newx = e.offsetX
+                var old = timestamp
+                timestamp = Math.max((newx)/32,0);
+                seeking = true;
+                seeking_pos = 10;
+            }
+            
+        })
+        document.addEventListener("mousemove", e => {
+            if (seeking) {
+                var newx = e.x - seek_bar.offsetLeft
+                var old = timestamp
+                timestamp = Math.max((newx - seeking_pos-10 + grid_container.scrollLeft)/32,0);
+                //playFrom(old, timestamp);
+            }
+            if (selecting) {
+                var gridRect = grid.getBoundingClientRect();
+                var width = e.x - gridRect.x - selection.box.x;
+                var height = e.y - gridRect.y - selection.box.y;
+                selection.box.width = width;
+                selection.box.height = height;
+                if (width < 0) {
+                    selection_box.style.left = selection.box.x + width;
+                    width *= -1;
+                } else {
+                    selection_box.style.left = selection.box.x;
+                }
+                if (height < 0){
+                    selection_box.style.top = selection.box.y + height;
+                    height *= -1;
+                } else {
+                    selection_box.style.top = selection.box.y;
+                }
+                selection_box.style.width = width;
+                selection_box.style.height = height;
+            }
+        })
+        document.addEventListener("mouseup", e => {
+            if (moving) {
+                const singleMove = selection.positions.length <= 1;
+                const newSelectionPos = []
+                const gridRect = grid.getBoundingClientRect();
+
+                const gridX = e.x - gridRect.x;
+                const gridY = e.y - gridRect.y;
+                const moveX = Math.floor(gridX/32) - Math.floor(gridClickPos.x/32);
+                const moveY = Math.floor(gridY/32) - Math.floor(gridClickPos.y/32);
+
+                for (const note of selection.notes) {
+                    currentScore.removeNote(note.pos);
+                }
+                for (const note of selection.notes) {
+                    const htmlnote = note.note.element;
+                    
+                    const newPos = new ScorePosition(note.pos.position + moveX, note.pos.note + moveY, note.pos.layer);
+
+                    if (0 <= newPos.note && newPos.note <= 24) {
+                        currentScore.removeNote(newPos);
+                        newSelectionPos.push(newPos);
+                        currentScore.setNote(newPos, note.note)
+                        grid.appendChild(htmlnote);
+                        htmlnote.style.top = (note.pos.note + moveY) * 32
+                        htmlnote.style.left = (note.pos.position + moveX) * 32
+                    }
+                }
+                selection.positions = newSelectionPos;
+                if (singleMove) {
+                    selection.deselect();
+                }
+            }
+            if (drawing) {
+                getEmptyMeasures();
+            }
+            if (selecting) {
+                selection_box.style.display = "none";
+                if (deselecting) {
+                    selection.deselectNotes();
+                } else {
+                    selection.selectNotes();
+                }
+            }
+            selecting = false;
+            drawing = false;
+            moving = false;
+            seeking = false;
+        })
+        var space_start = 0;
+        window.addEventListener('keydown', (e) => {  
+            keysDown[e.keyCode] = true;
+            if (e.keyCode === 32 && e.target === document.body) {  
+                e.preventDefault();
+                togglePlaying()
+            } 
+            if (e.keyCode === 65) {
+                e.preventDefault();
+                selection.selectAllNotesInLayer(currentLayer);
+            }
+            if (selection.positions.length > 0) {
+                if (e.keyCode === 8 || e.keyCode === 46) {
+                    selection.deleteNotes();
+                }
+            }
+            
+        });
+        window.addEventListener('keyup', (e) => {  
+            keysDown[e.keyCode] = false;
+        });
+
+        
+        function playFrom(t1, t2) {
+            var old_time_int = Math.floor(t1);
+            var time_int = Math.floor(t2);
+            var delta = Math.abs(old_time_int-time_int);
+
+            var mult = Math.sign(old_time_int - time_int)
+
+            for (var i = 0; i < delta; i++) {
+                var time_index = time_int + i * mult;
+                
+                for (const key in currentScore.layers) {
+                    const layer = currentScore.layers[key];
+                    for (var j = 0; j <= 24; j++) {
+                        const note = layer.notes[j][time_index];
+                        if (note) {
+                            var htmlnote = note.element;
+
+                            addAnimination(htmlnote);
+                                
+                            playSound(instruments[note.instrument].name, Math.pow(2, (24-j - 12)/12), 1);
+                        }
+                    }
+                }
+            }
+        }
+        function beforeUnload() {
+            cookies.setCookie("last_music", currentScore.toJSON(), 7);
+            return "Write something clever here...";
+        }
+        function tick() {
+            seeker.style.left = timestamp*32 + "px";
+            if (playing) {
+                var old_time = timestamp
+                if (old_time === 0) {
+                    old_time = -1
+                }
+                var end = (gridSize - emptyMeasures + 1) * 16;
+                timestamp = timestamp + 0.1;
+                
+
+                playFrom(old_time, timestamp)
+                if (old_time < end && timestamp > end) {
+                    setPlaying(false);
+                    timestamp = 0;
+                }
+            }
+            window.requestAnimationFrame(tick)
+        }
+
+        function togglePlaying() {
+            playing = !playing;
+            if (playing) {
+                play_button.classList = ["pause"]
+            } else {
+                play_button.classList = ["play"]
+            }
+        }
+        function setPlaying(value) {
+            playing = value;
+            if (playing) {
+                play_button.classList = ["pause"]
+            } else {
+                play_button.classList = ["play"]
+            }
+        }
+        
+        play_button.addEventListener("click", e => {
+            togglePlaying();
+            unfocus(e);
+        })
+        stop_button.addEventListener("click", e => {
+            setPlaying(false);
+            timestamp = 0;
+            unfocus(e);
+        })
+        function unfocus(e) {
+            e.srcElement.blur();
+        }
+
+        function updateGrid() {
+            grid.style.width = "max("+gridSize*32*16+"px,100%)";
+            seek_bar.style.width = "max("+gridSize*32*16+"px,100%)";
+            getEmptyMeasures();
+        }
+        function getEmptyMeasures() {
+            var empty = 0;
+            for (var i = 0; i < gridSize; i++) {
+                var isempty = true;
+                for (const key in currentScore.layers) {
+                    var layer = currentScore.layers[key];
+                    for (var j = 0; j <= 24; j++) {
+                        var row = layer.notes[j];
+                        for (var k = i * 16; k < i * 16 + 16; k++) {
+                            var note = row[k];
+                            if (note) {
+                                isempty = false;
+                                break
+                            }
+                        }
+                        if (!isempty) {
+                            break;
+                        }
+                    }
+                    if (!isempty) {
+                        break;
+                    }
+                }
+                if (!isempty) {
+                    empty = 0;
+                } else {
+                    empty += 1; 
+                }
+            }
+            
+            emptyMeasures = empty;
+        }
+        function selectLayer(e) {
+            currentLayer = e.srcElement.value;
+            e.srcElement.blur();
+            onChangedLayer();
+        }
+        function onChangedLayer() {
+            for (const key in currentScore.layers) {
+                var layer = currentScore.layers[key];
+                const isCurrentLayer = currentLayer == key;
+                for (var i = 0; i <= 24; i++) {
+                    const row = layer.notes[i];
+                    for (const key2 in row) {
+                        const note = row[key2];
+                        if (note) {
+                            note.element.classList.add("out_layer")
+                            if (isCurrentLayer) {
+                                note.element.classList.remove("out_layer");
+                            }
+                            note.element.style.zIndex = 10 + layer.zIndex * 2;
+                        }
+                    }
+                }
+            }
+        }
+
+
+        
+        window.requestAnimationFrame(tick)
+
+
+        function addNote(instrumentId, row, pos) {
+
+            var htmlnote = createNote(instrumentId);
+            grid.appendChild(htmlnote);
+            htmlnote.style.top = row*32+"px";
+            htmlnote.style.left = pos*32+"px";
+            var note = {instrument: instrumentId, element: htmlnote}
+
+            currentScore.setNote(new ScorePosition(pos, row, currentLayer), note)
+
+            var measure = Math.floor(pos/16) + 1;
+            if (measure >= gridSize) {
+                gridSize = measure + 2;
+                updateGrid();
+            }
+            //getEmptyMeasures();
+
+            return note
+            
+        }
+
+        function createNote(instrumentId) {
+            var note = document.createElement("div");
+            note.classList.add("note");
+            var instrument = instruments[instrumentId];
+            if (instrument) {
+                
+                note.style.setProperty("--note-color", "rgb("+instrument.color[0]+","+instrument.color[1]+","+instrument.color[2]+")");
+            }
+            return note
+        }
+    </script>
+</body>
+</html>

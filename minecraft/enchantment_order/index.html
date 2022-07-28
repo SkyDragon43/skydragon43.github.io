@@ -1,0 +1,227 @@
+<html>
+<head>
+    <link rel="stylesheet" href="../styles/minecraft.css">
+    <link rel="stylesheet" href="../styles/frame.css">
+    <link rel="stylesheet" href="../styles/gui.css">
+    <link rel="stylesheet" href="../styles/items.css">
+</head>
+
+<body>
+    <script src="enchants.js"></script>
+    <script src="items.js"></script>
+    <div class="main">
+
+        <div id="items" class="tooltip items" style="grid-column: 1; grid-row: 1;"></div>
+
+        <div class="tooltip bookPanel" style="grid-column: 1; grid-row: 2 / 3;">
+            <input type="text" class="tooltip search" placeholder="Search Enchants..." id="enchantedBookSearch" oninput="searchBooks()">
+            
+            <div id="enchantedBooks" class="tooltip enchantedBooks"></div>
+        </div>
+
+        <div id="stage" class="tooltip", style="grid-column: 2; grid-row: 1 / 3;"></div>
+
+        
+    </div>
+
+    
+    
+
+    <div id="tooltip" class="tooltip pointerignore" style="position:fixed; z-index: 999; display: none; width:max-content;"></div>
+
+    <script>
+        var selectedItem = null;
+        var hoverItem = null;
+
+        document.addEventListener('mousemove', e => {
+            var tooltip = document.getElementById("tooltip");
+            
+
+            var ele = document.elementFromPoint(e.clientX, e.clientY);
+            if (ele.classList.contains("item") && (selectedItem == null)) {
+                tooltip.style.top = e.clientY + "px";
+                tooltip.style.left = e.clientX + "px";
+                tooltip.style.display = "";
+
+                if (ele != hoverItem)
+                {
+                    if (hoverItem) {
+                        var oldcard = tooltip.getElementsByClassName("itemcard")[0];
+                        if (oldcard) {
+                            hoverItem.appendChild(oldcard);
+                            oldcard.style.display = "none";
+                        }
+                    }
+                    hoverItem = ele;
+
+                    var card = ele.getElementsByClassName("itemcard")[0];
+                    if (card) {
+                        tooltip.appendChild(card);
+                        card.style.display = "";
+                    }
+                }
+            } else {
+                tooltip.style.display = "none";
+                if (selectedItem) {
+                    selectedItem.style.top = e.clientY + "px";
+                    selectedItem.style.left = e.clientX + "px";   
+                }
+            }
+        });
+        document.addEventListener('mousedown', e => {
+            var ele = document.elementFromPoint(e.clientX, e.clientY);
+            if (!selectedItem) {
+                if (ele.classList.contains("item")) {
+
+                    var newitem = ele.cloneNode(true);
+
+                    selectedItem = ele;
+                    selectedItem.style.position = "fixed";
+                    //selectedItem.classList.add("pointerignore");
+                    selectedItem.style.transform = "translate(-50%,-50%)";
+                    selectedItem.style.top = e.clientY + "px";
+                    selectedItem.style.left = e.clientX + "px";
+
+                    document.body.appendChild(selectedItem);
+
+                    var tooltip = document.getElementById("tooltip");
+                    var card = tooltip.getElementsByClassName("itemcard")[0].cloneNode(true);
+                    card.style.display = "none";
+                    selectedItem.appendChild(card);
+                    //tooltip.style.display = "none";
+
+
+                    let ev = new MouseEvent("mousemove", {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true,
+                        clientX: e.clientX,
+                        clientY: e.clientY
+                    });
+                    document.dispatchEvent(ev);
+                    
+                }
+            } else {
+                //selectedItem.remove();
+                selectedItem = null;
+
+                let ev = new MouseEvent("mousemove", {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true,
+                    clientX: e.clientX,
+                    clientY: e.clientY
+                });
+                document.dispatchEvent(ev);
+            }
+        });
+        
+
+        function searchBooks() {
+            var input = document.getElementById("enchantedBookSearch");
+            var filter = input.value.toUpperCase();
+            var books = document.getElementById("enchantedBooks");
+            var items = books.getElementsByClassName("item");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var txt = item.title;
+                if (txt.toUpperCase().indexOf(filter) > -1) {
+                    item.style.display = "";
+                } else {
+                    item.style.display = "none";
+                }
+               
+            }
+        }
+
+
+
+        function generateItems() {
+            var itemtable = document.getElementById("items");
+            var count = 0
+            for (const [key, value] of Object.entries(items)) {
+                count++;
+
+                var item = document.createElement("div");
+                item.title = value.name;
+                item.classList.add("item");
+                if (value.url) {
+                    item.style = "--item-texture: url("+value.url+");"
+                } else {
+                    item.style = "--item-texture: url(https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19/assets/minecraft/textures/item/"+value.texture+".png);"
+                }
+                
+
+
+                var e = document.createElement("div");
+                e.classList.add("itemcard");
+                e.style.display = "none";
+
+                e.innerHTML = "<span class='white'>"+value.name;
+                item.appendChild(e);
+
+                    
+                    
+
+                itemtable.appendChild(item);
+                
+            }
+        }
+        function generateEnchants() {
+            var books = document.getElementById("enchantedBooks");
+
+            var numerals = ["0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+            var count = 0;
+            for (const [key, value] of Object.entries(enchants)) {
+                count++;
+                
+
+                var maxlvl = value.maxlevel;
+
+                
+                for (var i = 0; i < maxlvl; i++) {
+                    var enchantname = key;
+                    if (maxlvl > 1) {
+                        enchantname += " " + numerals[i+1];
+                    }
+
+                    var item = document.createElement("div");
+                    item.title = enchantname;
+                    item.classList.add("item", "enchanted_book");
+
+                    var glint = document.createElement("div");
+                    glint.classList.add("glint", "pointerignore")
+                    item.appendChild(glint);
+
+                    var e = document.createElement("div");
+                    e.classList.add("itemcard");
+                    e.style.display = "none";
+
+                    e.innerHTML = "<span class='yellow'>Enchanted Book";
+                    e.innerHTML += "<div class=\"spacer\">";
+
+                    if (value.curse) {
+                        e.innerHTML += "<span class='red'>"+enchantname;
+                    } else {
+                        e.innerHTML += "<span class='gray'>"+enchantname;
+                    }
+
+                    item.appendChild(e);
+                    
+                    
+
+                    books.appendChild(item);
+                }
+                
+            }
+        }
+
+
+        generateEnchants();
+        generateItems();
+        
+    </script>
+</body>
+</html>
