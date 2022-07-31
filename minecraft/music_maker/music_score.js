@@ -108,6 +108,7 @@ class Score {
             }
             delete this.layers[layer];
             this.fireEvent("layerschanged", {layer: layer, removed: true});
+            return layerobj;
         }
     }
 
@@ -116,13 +117,15 @@ class Score {
         if (layerobj) {
             var note = layerobj.notes[position.note][position.position];
             if (note) {
-                note.element.remove();
+                if (note.element) {
+                    note.element.remove();
+                }
                 delete layerobj.notes[position.note][position.position];
                 layerobj.noteCount--;
             }
         }
     }
-    setNote(position, note) {
+    setNote(position, note, grid) {
         var layerobj = this.layers[position.layer];
         if (!layerobj) {
             layerobj = new ScoreLayer(position.layer, this.currentIndex);
@@ -135,6 +138,11 @@ class Score {
 
         } else {
             layerobj.notes[position.note][position.position] = note;
+            if (note.element) {
+                grid.appendChild(note.element);
+                note.element.style.top = position.note*32+"px";
+                note.element.style.left = position.position*32+"px";
+            }
             layerobj.noteCount++;
         }
     }

@@ -685,7 +685,11 @@
             while (currentScore.layers["Layer"+layerNum]) {
                 layerNum++;
             }
-            currentScore.getOrCreateLayer("Layer"+layerNum);
+            let layer = currentScore.getOrCreateLayer("Layer"+layerNum);
+            editHistory.addAction({
+                type: "addLayer",
+                layer: layer
+            });
             getLayerButtons();
             e.srcElement.blur();
         }
@@ -695,7 +699,13 @@
             if (length > 1) {
                 for (const child of layers_menu.children) {
                     if (child.checked) {
-                        currentScore.removeLayer(child.value);
+                        let layer = currentScore.removeLayer(child.value);
+                        if (layer) {
+                            editHistory.addAction({
+                                type: "removeLayer",
+                                layer: layer
+                            });
+                        }
                         getLayerButtons();
 
                         
@@ -729,7 +739,100 @@
         
         var keysDown = {}
 
-        var selection = {
+        const editHistory = {
+            redoHistory: [],
+            history: [],
+            undoLevels: 50,
+            undo() {
+                let actions = this.history.pop();
+                if (actions) {
+                    selection.deselect();
+                    let redoActions = [];
+                    while (actions.length > 0) {
+                        let action = actions.pop();
+                        if (action) {
+                            switch(action.type) {
+                                case "addNote":
+                                    console.log("undo add Note");
+                                    currentScore.removeNote(action.position);
+                                    break;
+                                case "removeNote":
+                                    console.log("undo remove Note");
+                                    currentScore.setNote(action.position, action.note, grid);
+                                    break;
+                                case "addLayer":
+                                    console.log("undo add Layer");
+                                    currentScore.removeLayer(action.layer.name);
+                                    getLayerButtons();
+                                    break;
+                                case "removeLayer":
+                                    console.log("undo remove Layer");
+                                    currentScore.layers[action.layer.name] = action.layer;
+                                    getLayerButtons();
+                                    break;
+                                default:
+                                    break;
+                            }
+                            redoActions.push(action);
+                        }
+                    }
+                    this.redoHistory.push(redoActions);
+                }
+            },
+            redo() {
+                let actions = this.redoHistory.pop();
+                if (actions) {
+                    selection.deselect();
+                    let undoActions = [];
+                    while (actions.length > 0) {
+                        let action = actions.pop();
+                        if (action) {
+                            switch(action.type) {
+                                case "addNote":
+                                    console.log("redo add Note");
+                                    currentScore.setNote(action.position, action.note, grid);
+                                    //currentScore.removeNote(action.position);
+                                    break;
+                                case "removeNote":
+                                    console.log("redo remove Note");
+                                    currentScore.removeNote(action.position);
+                                    //currentScore.setNote(action.position, action.note, grid);
+                                    break;
+                                case "addLayer":
+                                    console.log("redo add Layer");
+                                    currentScore.layers[action.layer.name] = action.layer;
+                                    getLayerButtons();
+                                    break;
+                                case "removeLayer":
+                                    console.log("redo remove Layer");
+                                    currentScore.removeLayer(action.layer.name);
+                                    getLayerButtons();
+                                    break;
+                                default:
+                                    break;
+                            }
+                            undoActions.push(action);
+                        }
+                    }
+                    this.history.push(undoActions);
+                }
+            },
+            addAction(action) {
+                this.history.push([action]);
+                if (this.history.length > this.undoLevels) {
+                    this.history.splice(0,this.history.length - this.undoLevels);
+                }
+                this.redoHistory = [];
+            },
+            addActions(actions) {
+                this.history.push(actions);
+                if (this.history.length > this.undoLevels) {
+                    this.history.splice(0,this.history.length - this.undoLevels);
+                }
+                this.redoHistory = [];
+            }
+        }
+        const selection = {
             box: {
                 x:0,
                 y:0,
@@ -831,6 +934,18 @@
                 }
             }
         }
+        const clipboard = {
+            copy() {
+
+            },
+            paste(position) {
+
+            },
+            cut() {
+                this.copy();
+                selection.deleteNotes();
+            }
+        }
         var selecting = false;
         var deselecting = false;
 
@@ -853,7 +968,7 @@
             drawing = false;
             selecting = false;
             if (!moving) {
-                if (keysDown[16]) {
+                if (keysDown["ShiftLeft"]) {
                     selection.box.x = e.offsetX;
                     selection.box.y = e.offsetY;
                     selection.box.width = 0;
@@ -926,8 +1041,14 @@
                     if (prev_note) {
                         if (removing) {
                             //prev_note.element.remove()
-                            currentScore.removeNote(new ScorePosition(x, y, currentLayer))
+                            let pos = new ScorePosition(x, y, currentLayer);
+                            currentScore.removeNote(pos);
                             //delete row[x]
+                            editHistory.addAction({
+                                type: "removeNote",
+                                position: pos,
+                                note: prev_note
+                            });
                         } else if (click) {
                             var pitch = 24 - y;
                             addAnimination(prev_note.element);
@@ -940,18 +1061,26 @@
                             selection.getNotes();
                             moving = true;
                         }
-                    } else {
+                    } else if (click) {
                         if (!removing) {
-                            var note = addNote(selectedInstrument, y, x);
+                            let pos = new ScorePosition(x, y, currentLayer);
+                            let note = addNote(selectedInstrument, pos);
 
                             addAnimination(note.element);
                             //row[x] = note;
-                            var pitch = 24 - y;
+                            let pitch = 24 - y;
                             playSound(instruments[selectedInstrument].name, Math.pow(2, (pitch - 12)/12), 1);
+
+                            editHistory.addAction({
+                                type: "addNote",
+                                position: pos,
+                                note: note
+                            });
                         }
                     }
                 }
             }
+
             if (moving) {
                 const layerObj = currentScore.layers[currentLayer];
                 const gridRect = grid.getBoundingClientRect();
@@ -960,17 +1089,18 @@
 
                 if (click) {
                     for (const note of selection.notes) {
-                        const htmlnote = note.note.element;
-                        draging_notes.appendChild(htmlnote);
+                        if (note.note) {
+                            const htmlnote = note.note.element;
+                            draging_notes.appendChild(htmlnote);
+                        }
                     }
                 }
             }
-            
         }
         grid_container.addEventListener("wheel", (evt) => {
             evt.preventDefault();
 
-            if (keysDown[16]) {
+            if (keysDown["ShiftLeft"]) {
                 grid_container.scrollTop += evt.deltaY;
             } else {
                 grid_container.scrollLeft += evt.deltaY * 2;
@@ -1042,23 +1172,42 @@
                 const moveX = Math.floor(gridX/32) - Math.floor(gridClickPos.x/32);
                 const moveY = Math.floor(gridY/32) - Math.floor(gridClickPos.y/32);
 
-                for (const note of selection.notes) {
-                    currentScore.removeNote(note.pos);
-                }
-                for (const note of selection.notes) {
-                    const htmlnote = note.note.element;
-                    
-                    const newPos = new ScorePosition(note.pos.position + moveX, note.pos.note + moveY, note.pos.layer);
 
-                    if (0 <= newPos.note && newPos.note <= 24) {
-                        currentScore.removeNote(newPos);
-                        newSelectionPos.push(newPos);
-                        currentScore.setNote(newPos, note.note)
-                        grid.appendChild(htmlnote);
-                        htmlnote.style.top = (note.pos.note + moveY) * 32
-                        htmlnote.style.left = (note.pos.position + moveX) * 32
+                let moveActions = [];
+
+                for (const note of selection.notes) {
+                    if (note.note) {
+                        currentScore.removeNote(note.pos);
+                        moveActions.push({
+                            type: "removeNote",
+                            position: note.pos,
+                            note: note.note
+                        });
                     }
                 }
+                for (const note of selection.notes) {
+                    if (note.note) {
+                        const htmlnote = note.note.element;
+                        
+                        const newPos = new ScorePosition(note.pos.position + moveX, note.pos.note + moveY, note.pos.layer);
+
+                        if (0 <= newPos.note && newPos.note <= 24) {
+                            currentScore.removeNote(newPos);
+                            newSelectionPos.push(newPos);
+                            currentScore.setNote(newPos, note.note, grid)
+                            //grid.appendChild(htmlnote);
+                            htmlnote.style.top = (note.pos.note + moveY) * 32
+                            htmlnote.style.left = (note.pos.position + moveX) * 32
+                        }
+
+                        moveActions.push({
+                            type: "addNote",
+                            position: newPos,
+                            note: note.note
+                        });
+                    }
+                }
+                editHistory.addActions(moveActions);
                 selection.positions = newSelectionPos;
                 if (singleMove) {
                     selection.deselect();
@@ -1082,24 +1231,57 @@
         })
         var space_start = 0;
         window.addEventListener('keydown', (e) => {  
-            keysDown[e.keyCode] = true;
-            if (e.keyCode === 32 && e.target === document.body) {  
+            keysDown[e.code] = true;
+
+
+            if (e.code === "Space" && e.target === document.body) {  
                 e.preventDefault();
                 togglePlaying()
             } 
-            if (e.keyCode === 65) {
-                e.preventDefault();
-                selection.selectAllNotesInLayer(currentLayer);
-            }
+            
             if (selection.positions.length > 0) {
-                if (e.keyCode === 8 || e.keyCode === 46) {
+                if (e.code === "Backspace" || e.code === "Delete") {
                     selection.deleteNotes();
                 }
             }
+
+
+
+            if (e.ctrlKey) {
+                if (e.code === "KeyA") {
+                    e.preventDefault();
+                    selection.selectAllNotesInLayer(currentLayer);
+                }
+                if (e.code === "KeyZ") {
+                    e.preventDefault();
+                    editHistory.undo();
+                }
+                if (e.code === "KeyY") {
+                    e.preventDefault();
+                    editHistory.redo();
+                }
+
+
+                if (e.code === "KeyC") {
+                    e.preventDefault();
+                    clipboard.copy();
+                }
+                if (e.code === "KeyX") {
+                    e.preventDefault();
+                    clipboard.cut();
+                }
+                if (e.code === "KeyV") {
+                    e.preventDefault();
+                    clipboard.paste(1);
+                }
+            } 
+
+
+            
             
         });
         window.addEventListener('keyup', (e) => {  
-            keysDown[e.keyCode] = false;
+            keysDown[e.code] = false;
         });
 
         
@@ -1254,17 +1436,16 @@
         window.requestAnimationFrame(tick)
 
 
-        function addNote(instrumentId, row, pos) {
+        function addNote(instrumentId, pos) {
 
             var htmlnote = createNote(instrumentId);
-            grid.appendChild(htmlnote);
-            htmlnote.style.top = row*32+"px";
-            htmlnote.style.left = pos*32+"px";
+            htmlnote.style.top = pos.note*32+"px";
+            htmlnote.style.left = pos.position*32+"px";
             var note = {instrument: instrumentId, element: htmlnote}
 
-            currentScore.setNote(new ScorePosition(pos, row, currentLayer), note)
+            currentScore.setNote(pos, note, grid)
 
-            var measure = Math.floor(pos/16) + 1;
+            var measure = Math.floor(pos.position/16) + 1;
             if (measure >= gridSize) {
                 gridSize = measure + 2;
                 updateGrid();
