@@ -1,0 +1,530 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+        <style>
+            #unit_circle {
+                border: 1px solid black;
+                position: relative;
+                width: 800px;
+                height: 800px;
+
+                padding: 0;
+
+
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+
+                font-family: 'Times New Roman', Times, serif;
+                font-size: 18px;
+            }
+
+            #unit_circle::before {
+                content: "";
+                position:absolute;
+                width: 50%;
+                height: 50%;
+                border: 3px solid black;
+                border-radius: 100%;
+
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+
+                box-sizing: border-box;
+            }
+
+            #arrows {
+                --rotation: 0deg;
+
+                background: black;
+                position: absolute;
+                width: 75%;
+                height: 100%;
+
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%) rotate(var(--rotation));
+
+                clip-path: polygon(
+                    5% calc(50% + 6px),
+                    calc(5% - 15px) 50%,
+                    5% calc(50% - 6px),
+                    5% calc(50% - 2px), 
+
+                    95% calc(50% - 2px),
+                    95% calc(50% - 6px),
+                    calc(95% + 15px) 50%,
+                    95% calc(50% + 6px),
+                    95% calc(50% + 2px),
+
+                    5% calc(50% + 2px)
+                );
+            }
+
+            #lines {
+
+                --rotation: 45deg;
+                background-color: black;
+
+                position: absolute;
+                width: 50%;
+                height: 1px;
+
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%) rotate(var(--rotation)) ;
+            }
+
+
+            input[type=text] {
+                position: relative;
+                width: 50px;
+
+                font-family: inherit;
+                font-size: inherit;
+            }
+
+            .incorrect {
+                color: red;
+
+                border: 2px solid red;
+                border-radius: 3px;
+
+            }
+            .correct {
+                color: green;
+                font-weight: bold;
+
+                border: 2px solid green;
+                border-radius: 3px;
+
+                background-color: rgb(221, 221, 221);
+            }
+
+            #submit_button {
+                position: absolute;
+                left: 50%;
+                top: 90%;
+                transform: translate(-50%, -50%);
+            }
+            #reset_button {
+                position: absolute;
+                left: 50%;
+                top: 94%;
+                transform: translate(-50%, -50%);
+            }
+
+            #panel {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+
+                background-color: rgba(0, 0, 0, 0.733);
+            }
+            #timer {
+                position: absolute;
+                width: 100%;
+                height: auto;
+                text-align: center;
+                background-color: rgba(0, 0, 0, 0.315);
+            }
+            #play_button {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%) scale(300%);
+            }
+            #time {
+                position: absolute;
+                font-size: 48px;
+                color: white;
+
+                top: 40%;
+                left: 50%;
+
+                transform: translate(-50%, -50%);
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            function test() {
+                window.alert("hello");
+            }
+        </script>
+        <div id="unit_circle">
+            <div id="arrows" style="--rotation: 0deg"></div>
+            <div id="arrows" style="--rotation: 90deg"></div>
+            <div id="lines" style="--rotation: 45deg"></div>
+            <div id="lines" style="--rotation: 135deg"></div>
+
+            <div id="lines" style="--rotation: 30deg"></div>
+            <div id="lines" style="--rotation: 60deg"></div>
+            <div id="lines" style="--rotation: 120deg"></div>
+            <div id="lines" style="--rotation: 150deg"></div>
+
+            <div id="timer"></div>
+
+            <div style="position:absolute; left: 61%; top: 46.5%;">
+                <input type="text" data-answer="0" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 59%; top: 43%;">
+                <input type="text" data-answer="30" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 57%; top: 39%;">
+                <input type="text" data-answer="45" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 54%; top: 35%;">
+                <input type="text" data-answer="60" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 47%; top: 32%;">
+                <input type="text" data-answer="90" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 40%; top: 35%;">
+                <input type="text" data-answer="120" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 37%; top: 39%;">
+                <input type="text" data-answer="135" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 35%; top: 43%;">
+                <input type="text" data-answer="150" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 33%; top: 47%;">
+                <input type="text" data-answer="180" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 35%; top: 54%;">
+                <input type="text" data-answer="210" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 37%; top: 58%;">
+                <input type="text" data-answer="225" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 40%; top: 62%;">
+                <input type="text" data-answer="240" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 47%; top: 65%;">
+                <input type="text" data-answer="270" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 54%; top: 62%;">
+                <input type="text" data-answer="300" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 57%; top: 58%;">
+                <input type="text" data-answer="315" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 59%; top: 54%;">
+                <input type="text" data-answer="330" class="answerbox">°
+            </div>
+            <div style="position:absolute; left: 61%; top: 50%;">
+                <input type="text" data-answer="360" class="answerbox">°
+            </div>                                              
+            
+            <div style="position:absolute; left: 69%; top: 46.5%;">
+                <input type="text" data-answer="0" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 66%; top: 39%;">
+                <input type="text" data-answer="pi/6" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 63%; top: 34%;">
+                <input type="text" data-answer="pi/4" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 58%; top: 30%;">
+                <input type="text" data-answer="pi/3" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 47%; top: 27%;">
+                <input type="text" data-answer="pi/2" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 36%; top: 30%;">
+                <input type="text" data-answer="2pi/3" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 31%; top: 34%;">
+                <input type="text" data-answer="3pi/4" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 28%; top: 39%;">
+                <input type="text" data-answer="5pi/6" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 25%; top: 47%;">
+                <input type="text" data-answer="pi" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 28%; top: 58%;">
+                <input type="text" data-answer="7pi/6" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 31%; top: 63%;">
+                <input type="text" data-answer="5pi/4" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 36%; top: 67%;">
+                <input type="text" data-answer="4pi/3" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 47%; top: 70%;">
+                <input type="text" data-answer="3pi/2" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 58%; top: 67%;">
+                <input type="text" data-answer="5pi/3" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 63%; top: 63%;">
+                <input type="text" data-answer="7pi/4" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 66%; top: 58%;">
+                <input type="text" data-answer="11pi/6" class="answerbox">
+            </div>
+            <div style="position:absolute; left: 69%; top: 50%;">
+                <input type="text" data-answer="2pi" class="answerbox">
+            </div>            
+
+            
+            <div style="position:absolute; left: 78%; top: 45%;">
+                (
+                <input type="text" data-answer="1" class="answerbox">
+                ,
+                <input type="text" data-answer="0" class="answerbox">
+                )
+            </div>
+            <div style="position:absolute; left: 51%; top: 19%;">
+                (
+                <input type="text" data-answer="0" class="answerbox">
+                ,
+                <input type="text" data-answer="1" class="answerbox">
+                )
+            </div>
+            <div style="position:absolute; left: 6%; top: 45%;">
+                (
+                <input type="text" data-answer="-1" class="answerbox">
+                ,
+                <input type="text" data-answer="0" class="answerbox">
+                )
+            </div>
+            <div style="position:absolute; left: 32%; top: 77%;">
+                (
+                <input type="text" data-answer="0" class="answerbox">
+                ,
+                <input type="text" data-answer="-1" class="answerbox">
+                )
+            </div>
+
+            <div style="position:absolute; left: 73%; top: 34%;">
+                (
+                <input type="text" data-answer="sqrt3/2" class="answerbox">
+                ,
+                <input type="text" data-answer="1/2" class="answerbox">
+                )
+            </div>
+
+            <div style="position:absolute; left: 68%; top: 29%;">
+                (
+                <input type="text" data-answer="sqrt2/2" class="answerbox">
+                ,
+                <input type="text" data-answer="sqrt2/2" class="answerbox">
+                )
+            </div>
+
+            <div style="position:absolute; left: 61%; top: 24%;">
+                (
+                <input type="text" data-answer="1/2" class="answerbox">
+                ,
+                <input type="text" data-answer="sqrt3/2" class="answerbox">
+                )
+            </div>
+
+
+            <div style="position:absolute; left: 22%; top: 24%;">
+                (
+                <input type="text" data-answer="-1/2" class="answerbox">
+                ,
+                <input type="text" data-answer="sqrt3/2" class="answerbox">
+                )
+            </div>
+            <div style="position:absolute; left: 15%; top: 29%;">
+                (
+                <input type="text" data-answer="-sqrt2/2" class="answerbox">
+                ,
+                <input type="text" data-answer="sqrt2/2" class="answerbox">
+                )
+            </div>
+            <div style="position:absolute; left: 11%; top: 34%;">
+                (
+                <input type="text" data-answer="-sqrt3/2" class="answerbox">
+                ,
+                <input type="text" data-answer="1/2" class="answerbox">
+                )
+            </div>
+
+            <div style="position:absolute; left: 22%; top: 73%;">
+                (
+                <input type="text" data-answer="-1/2" class="answerbox">
+                ,
+                <input type="text" data-answer="-sqrt3/2" class="answerbox">
+                )
+            </div>
+            <div style="position:absolute; left: 15%; top: 68%;">
+                (
+                <input type="text" data-answer="-sqrt2/2" class="answerbox">
+                ,
+                <input type="text" data-answer="-sqrt2/2" class="answerbox">
+                )
+            </div>
+            <div style="position:absolute; left: 11%; top: 63%;">
+                (
+                <input type="text" data-answer="-sqrt3/2" class="answerbox">
+                ,
+                <input type="text" data-answer="-1/2" class="answerbox">
+                )
+            </div>
+
+            <div style="position:absolute; left: 61%; top: 73%;">
+                (
+                <input type="text" data-answer="1/2" class="answerbox">
+                ,
+                <input type="text" data-answer="-sqrt3/2" class="answerbox">
+                )
+            </div>
+            <div style="position:absolute; left: 68%; top: 68%;">
+                (
+                <input type="text" data-answer="sqrt2/2" class="answerbox">
+                ,
+                <input type="text" data-answer="-sqrt2/2" class="answerbox">
+                )
+            </div>
+            <div style="position:absolute; left: 73%; top: 63%;">
+                (
+                <input type="text" data-answer="sqrt3/2" class="answerbox">
+                ,
+                <input type="text" data-answer="-1/2" class="answerbox">
+                )
+            </div>
+
+            <button id="submit_button">SUBMIT ALL</button>
+            <button id="reset_button">RESET</button>
+
+            <div id="panel">
+                <div id="time"></div>
+                <button id="play_button">START</button>
+            </div>>
+        </div>
+
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script type = "text/javascript">
+
+            var unit_circle_div = document.getElementById("unit_circle");
+            var submit_button = document.getElementById("submit_button");
+            var reset_button = document.getElementById("reset_button");
+
+            var timer_element = document.getElementById("timer");
+            var play_button = document.getElementById("play_button");
+            var panel = document.getElementById("panel");
+
+            var started = false;
+            var startTime = Date.now();
+            function reset() {
+                for (var element of document.getElementsByClassName("answerbox")) {
+                    element.disabled = true;
+                    element.value = "";
+                    element.classList.remove("correct");
+                    element.classList.remove("incorrect");
+                }
+                submit_button.disabled = true;
+                reset_button.disabled = true;
+            }
+            function start() {
+                started = true;
+                startTime = Date.now();
+                panel.style.display = "none";
+
+                for (var element of document.getElementsByClassName("answerbox")) {
+                    element.disabled = false;
+                    element.value = "";
+                    element.classList.remove("correct");
+                    element.classList.remove("incorrect");
+                }
+                submit_button.disabled = false;
+                reset_button.disabled = false;
+            }
+            function end() {
+
+            }
+            reset();
+            function testElement(element) {
+                var boxValue = element.value;
+                boxValue = boxValue.replace("π","pi");
+                boxValue = boxValue.replace("√","sqrt");
+                if (boxValue === element.dataset.answer) {
+                    element.classList.add("correct");
+                    element.classList.remove("incorrect");
+                    element.disabled = true;
+
+                    // var next = e.srcElement;
+                    // while (next = next.nextElementSibling) {
+                    //     if (next == null)
+                    //         break;
+                    //     if (next.tagName.toLowerCase() == "input") {
+                    //         next.focus();
+                    //         break;
+                    //     }
+                    // }
+                } else {
+                    element.classList.add("incorrect");
+                    element.classList.remove("correct");
+                }
+                var allright = true;
+                for (var element2 of document.getElementsByClassName("answerbox")) {
+                    var boxValue2 = element2.value;
+                    boxValue2 = boxValue2.replace("π","pi");
+                    boxValue2 = boxValue2.replace("√","sqrt");
+                    if (boxValue2 !== element2.dataset.answer) {
+                        allright = false;
+                        break
+                    }
+                }
+                if (allright) {
+                    end();
+                }
+            }
+            
+            addEventListener("input", (e) => {
+                e.srcElement.value = e.srcElement.value.replace("pi","π");
+                e.srcElement.value = e.srcElement.value.replace("sqrt", "√");
+            });
+            addEventListener("keyup", (e) => {
+                if (e.srcElement.classList.contains("answerbox")) {
+                    if (e.key === "Enter") {
+                        testElement(e.srcElement);
+                    }
+                }
+            });
+            addEventListener("click", (e) => {
+                if (e.srcElement.id === "submit_button") {
+                    for (var element of document.getElementsByClassName("answerbox")) {
+                        testElement(element);
+                    }
+                }
+                if (e.srcElement.id === "play_button") {
+                    if (!started) {
+                        start();
+                    }
+                }
+                if (e.srcElement.id === "reset_button") {
+                    reset();
+                    start();
+                }
+            }); 
+
+            
+            setInterval(function() {
+                if (started) {
+                    var delta = Date.now() - startTime; // milliseconds elapsed since start
+                
+                    var str = Math.floor(delta / 1).toString();
+                    var seconds = (Math.floor(delta / 1000) % 60).toString();
+                    var minutes = (Math.floor(delta / 1000 / 60)).toString();
+                    timer_element.innerHTML = minutes +":" + seconds + "." + str.slice(-3);
+                } else {
+                    timer_element.innerHTML ="0:0.000"
+                }
+                
+                // output(); // in seconds
+                // // alternatively just show wall clock time:
+                // output(new Date().toUTCString());
+            }, 1); // update about every second
+
+        </script>
+    </body>
+</html>
