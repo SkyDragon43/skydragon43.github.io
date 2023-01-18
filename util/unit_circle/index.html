@@ -411,7 +411,7 @@
             var timer_element = document.getElementById("timer");
             var play_button = document.getElementById("play_button");
             var panel = document.getElementById("panel");
-
+            var time_label = document.getElementById("time");
             var started = false;
             var startTime = Date.now();
             function reset() {
@@ -439,7 +439,10 @@
                 reset_button.disabled = false;
             }
             function end() {
-
+                reset();
+                time_label.innerHTML = timer_element.innerHTML;
+                panel.style.display = "block";
+                started = false;
             }
             reset();
             function testElement(element) {
